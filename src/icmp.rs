@@ -288,7 +288,9 @@ fn recv_once(socket: &Socket, buf: &mut [u8]) -> io::Result<(usize, Option<u8>)>
     msg.msg_iov = &mut iov;
     msg.msg_iovlen = 1;
     msg.msg_control = control.as_mut_ptr() as *mut libc::c_void;
-    msg.msg_controllen = control.len() as libc::socklen_t;
+    // Linux 上 msg_controllen 是 usize，macOS/BSD 上是 socklen_t(u32)，
+    // 用 `as _` 让编译器按目标平台推断，保证跨平台编译。
+    msg.msg_controllen = control.len() as _;
 
     let n = unsafe { libc::recvmsg(socket.as_raw_fd(), &mut msg, 0) };
     if n < 0 {
