@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package
+      Name="rust-ping"
+      Manufacturer="0x0021"
+      Version="$(var.Version)"
+      UpgradeCode="7F4C1E9A-3B62-4D18-9A0C-6E2D5B81F4A7"
+      Language="1033"
+      Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="rust-ping">
+          <Component Id="MainExecutable" Guid="*">
+            <File Id="rustPingExe" Source="rust-ping.exe" KeyPath="yes" />
+          </Component>
+          <Component Id="Readme" Guid="*">
+            <File Id="ReadmeFile" Source="README.md" KeyPath="yes" />
+          </Component>
+          <Component Id="ExampleConfig" Guid="*">
+            <File Id="ExampleConfigFile" Source="config.example.toml" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+    </Directory>
+
+    <Feature Id="MainFeature" Title="rust-ping" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="Readme" />
+      <ComponentRef Id="ExampleConfig" />
+    </Feature>
+  </Package>
+</Wix>

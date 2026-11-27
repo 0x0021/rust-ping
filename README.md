@@ -32,37 +32,52 @@ cargo build --release
 cargo install --path .
 ```
 
-### 预编译二进制
+### 预编译二进制与原生安装包
 
-GitHub Releases 提供以下平台的预编译包（含 SHA256 校验文件）：
+GitHub Releases 提供以下产物（均含 SHA256 校验文件）：
 
-| 平台 | Target |
-| --- | --- |
-| Linux x86_64 | `x86_64-unknown-linux-gnu` |
-| Linux aarch64 | `aarch64-unknown-linux-gnu` |
-| macOS Intel | `x86_64-apple-darwin` |
-| macOS Apple Silicon | `aarch64-apple-darwin` |
-| Windows x86_64 | `x86_64-pc-windows-msvc` |
+| 平台 | 压缩包 | 原生安装包 |
+| --- | --- | --- |
+| Linux x86_64 | `x86_64-unknown-linux-gnu` | `.deb`（amd64）、`.rpm`（x86_64） |
+| Linux aarch64 | `aarch64-unknown-linux-gnu` | `.deb`（arm64）、`.rpm`（aarch64） |
+| macOS Intel / Apple Silicon | 两个架构各一个 tar.gz | `.pkg`（universal，含两种架构） |
+| Windows x86_64 | `x86_64-pc-windows-msvc` | `.msi` |
 
-到 [Releases](https://github.com/0x0021/rust-ping/releases) 页面下载对应包，解压即用：
+到 [Releases](https://github.com/0x0021/rust-ping/releases) 页面下载对应文件：
 
 ```bash
-# Linux / macOS
-tar -xzf rust-ping-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
-cd rust-ping-v0.1.0-x86_64-unknown-linux-gnu
+# 压缩包，解压即用
+tar -xzf rust-ping-v0.1.2-x86_64-unknown-linux-gnu.tar.gz
+cd rust-ping-v0.1.2-x86_64-unknown-linux-gnu
 ./rust-ping 1.1.1.1
 
 # 校验
-shasum -a 256 -c rust-ping-v0.1.0-x86_64-unknown-linux-gnu.tar.gz.sha256
+sha256sum -c rust-ping-v0.1.2-x86_64-unknown-linux-gnu.tar.gz.sha256
+```
+
+原生安装包安装方式：
+
+```bash
+# Debian / Ubuntu
+sudo apt install ./rust-ping-v0.1.2-amd64.deb
+
+# RHEL / Fedora / CentOS
+sudo rpm -ivh rust-ping-v0.1.2-x86_64.rpm
+
+# macOS（universal pkg，安装到 /usr/local/bin）
+sudo installer -pkg rust-ping-v0.1.2-universal-apple-darwin.pkg -target /
+
+# Windows：双击 MSI，或命令行静默安装
+msiexec /i rust-ping-v0.1.2-x86_64-pc-windows-msvc.msi /qn
 ```
 
 ### 自动发布
 
-维护者推送 `v*` tag 即自动触发多平台交叉编译并创建 GitHub Release：
+维护者推送 `v*` tag 即自动触发多平台交叉编译、原生安装包构建并创建 GitHub Release：
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.2
+git push origin v0.1.2
 ```
 
 也可以在 Actions 页面手动触发 Release 工作流并指定版本号。CI 工作流在每次 push / PR 到 `master` 时运行格式检查、clippy、测试和构建。

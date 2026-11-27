@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release tag (e.g. v0.1.0)'
+        description: 'Release tag (e.g. v0.1.2)'
         required: true
         type: string
 
@@ -108,9 +108,172 @@ jobs:
             *.zip.sha256
           if-no-files-found: error
 
+  package-linux:
+    name: Package Linux (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-22.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry and build
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: pkg-linux-${{ matrix.arch }}
+
+      - name: Install packaging tools
+        env:
+          RUSTFLAGS: ""
+        run: cargo install cargo-deb cargo-generate-rpm --locked
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Build deb and rpm
+        shell: bash
+        run: |
+          DEB="rust-ping-${VERSION}-${{ matrix.arch }}.deb"
+          RPM="rust-ping-${VERSION}-${{ matrix.arch }}.rpm"
+          cargo deb --no-build --output "$DEB"
+          cargo generate-rpm --output "$RPM"
+          sha256sum "$DEB" > "$DEB.sha256"
+          sha256sum "$RPM" > "$RPM.sha256"
+
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkg-linux-${{ matrix.arch }}
+          path: |
+            *.deb
+            *.deb.sha256
+            *.rpm
+            *.rpm.sha256
+          if-no-files-found: error
+
+  package-macos:
+    name: Package macOS (universal pkg)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
+
+      - name: Cache Cargo registry and build
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: pkg-macos
+
+      - name: Build both architectures
+        run: |
+          cargo build --release --locked --target x86_64-apple-darwin
+          cargo build --release --locked --target aarch64-apple-darwin
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Create universal pkg
+        shell: bash
+        run: |
+          lipo -create \
+            target/x86_64-apple-darwin/release/rust-ping \
+            target/aarch64-apple-darwin/release/rust-ping \
+            -output rust-ping-universal
+          PKG="rust-ping-${VERSION}-universal-apple-darwin.pkg"
+          packaging/macos/build-pkg.sh "$VERSION" rust-ping-universal "$PKG"
+          shasum -a 256 "$PKG" > "$PKG.sha256"
+
+      - name: Upload macOS package
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkg-macos
+          path: |
+            *.pkg
+            *.pkg.sha256
+          if-no-files-found: error
+
+  package-windows:
+    name: Package Windows (msi)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo registry and build
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: pkg-windows-msi
+
+      - name: Build release binary
+        run: cargo build --release --locked
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Install WiX v5
+        shell: pwsh
+        run: dotnet tool install --global wix --version 5.*
+
+      - name: Build MSI
+        shell: pwsh
+        run: |
+          $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+          Copy-Item "target/release/rust-ping.exe" "packaging/windows/rust-ping.exe"
+          Copy-Item README.md, config.example.toml "packaging/windows/"
+          $numeric = $env:VERSION.TrimStart('v')
+          $msi = "rust-ping-$env:VERSION-x86_64-pc-windows-msvc.msi"
+          wix build -arch x64 -d "Version=$numeric" "packaging/windows/rust-ping.wxs" -out "$msi"
+          (Get-FileHash "$msi" -Algorithm SHA256).Hash.ToLower() + "  $msi" | Out-File "$msi.sha256" -Encoding utf8
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: pkg-windows
+          path: |
+            *.msi
+            *.msi.sha256
+          if-no-files-found: error
+
   release:
     name: Publish GitHub Release
-    needs: build
+    needs: [build, package-linux, package-macos, package-windows]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -133,7 +296,7 @@ jobs:
       - name: Flatten artifacts
         run: |
           mkdir -p release
-          find artifacts -type f \( -name '*.tar.gz' -o -name '*.sha256' -o -name '*.zip' \) -exec cp {} release/ \;
+          find artifacts -type f \( -name '*.tar.gz' -o -name '*.sha256' -o -name '*.zip' -o -name '*.deb' -o -name '*.rpm' -o -name '*.msi' -o -name '*.pkg' \) -exec cp {} release/ \;
           ls -lh release/
 
       - name: Create release and upload assets

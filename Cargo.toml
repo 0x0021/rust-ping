@@ -1,10 +1,38 @@
 [package]
 name = "rust-ping"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "A cross-platform command-line ping tool written in Rust"
 license = "MIT"
 readme = "README.md"
+repository = "https://github.com/0x0021/rust-ping"
+homepage = "https://0x0021.github.io/posts/rust-ping-release.html"
+
+[package.metadata.deb]
+maintainer = "0x0021 <dev@0x0021.com>"
+copyright = "2026, 0x0021"
+extended-description = """\
+A cross-platform command-line ICMP ping tool written in Rust.\
+Supports DNS resolution, TOML configuration, plain/color/table output,\
+and Windows, macOS and Linux."""
+section = "net"
+priority = "optional"
+depends = "$auto"
+assets = [
+  ["target/release/rust-ping", "usr/bin/", "755"],
+  ["README.md", "usr/share/doc/rust-ping/README.md", "644"],
+  ["config.example.toml", "usr/share/doc/rust-ping/config.example.toml", "644"],
+]
+
+[package.metadata.generate-rpm]
+summary = "Cross-platform command-line ICMP ping tool written in Rust"
+license = "MIT"
+url = "https://github.com/0x0021/rust-ping"
+assets = [
+  { source = "target/release/rust-ping", dest = "/usr/bin/rust-ping", mode = "755" },
+  { source = "README.md", dest = "/usr/share/doc/rust-ping/README.md", mode = "644" },
+  { source = "config.example.toml", dest = "/usr/share/doc/rust-ping/config.example.toml", mode = "644" },
+]
 
 [dependencies]
 # 命令行参数解析
