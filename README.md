@@ -1,5 +1,8 @@
 # rust-ping
 
+[![CI](https://github.com/0x0021/rust-ping/actions/workflows/ci.yml/badge.svg)](https://github.com/0x0021/rust-ping/actions/workflows/ci.yml)
+[![Release](https://github.com/0x0021/rust-ping/actions/workflows/release.yml/badge.svg)](https://github.com/0x0021/rust-ping/actions/workflows/release.yml)
+
 用 Rust 实现的跨平台命令行 ping 工具，基于 ICMP Echo 请求/回复。支持域名与 IP、丰富的命令行参数、TOML 配置文件、普通/颜色/表格三种输出样式，以及 Windows / macOS / Linux。
 
 ## 功能特性
@@ -28,6 +31,41 @@ cargo build --release
 ```bash
 cargo install --path .
 ```
+
+### 预编译二进制
+
+GitHub Releases 提供以下平台的预编译包（含 SHA256 校验文件）：
+
+| 平台 | Target |
+| --- | --- |
+| Linux x86_64 | `x86_64-unknown-linux-gnu` |
+| Linux aarch64 | `aarch64-unknown-linux-gnu` |
+| macOS Intel | `x86_64-apple-darwin` |
+| macOS Apple Silicon | `aarch64-apple-darwin` |
+| Windows x86_64 | `x86_64-pc-windows-msvc` |
+
+到 [Releases](https://github.com/0x0021/rust-ping/releases) 页面下载对应包，解压即用：
+
+```bash
+# Linux / macOS
+tar -xzf rust-ping-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+cd rust-ping-v0.1.0-x86_64-unknown-linux-gnu
+./rust-ping 1.1.1.1
+
+# 校验
+shasum -a 256 -c rust-ping-v0.1.0-x86_64-unknown-linux-gnu.tar.gz.sha256
+```
+
+### 自动发布
+
+维护者推送 `v*` tag 即自动触发多平台交叉编译并创建 GitHub Release：
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+也可以在 Actions 页面手动触发 Release 工作流并指定版本号。CI 工作流在每次 push / PR 到 `master` 时运行格式检查、clippy、测试和构建。
 
 ## 用法
 

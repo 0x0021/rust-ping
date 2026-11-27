@@ -62,9 +62,7 @@ pub fn find_default_config() -> Option<PathBuf> {
     if let Ok(home) = std::env::var("HOME") {
         candidates.push(PathBuf::from(home).join(".config/rust-ping/config.toml"));
     }
-    candidates
-        .into_iter()
-        .find(|p| p.is_file() && p.exists())
+    candidates.into_iter().find(|p| p.is_file() && p.exists())
 }
 
 /// 读取并解析 TOML 配置文件。
@@ -81,7 +79,11 @@ pub fn example_config() -> &'static str {
 }
 
 fn normalize_count(n: u32) -> Option<u32> {
-    if n == 0 { None } else { Some(n) }
+    if n == 0 {
+        None
+    } else {
+        Some(n)
+    }
 }
 
 /// 按 配置文件 -> 命令行 的顺序覆盖默认值。
@@ -89,27 +91,65 @@ pub fn merge(cli: &Cli, file: Option<&FileConfig>) -> Result<Options> {
     let mut opts = Options::default();
 
     if let Some(f) = file {
-        if let Some(v) = &f.target { opts.target = v.clone(); }
-        if let Some(v) = f.count { opts.count = normalize_count(v); }
-        if let Some(v) = f.interval { opts.interval = v; }
-        if let Some(v) = f.timeout { opts.timeout = v; }
-        if let Some(v) = f.payload_size { opts.payload_size = v; }
-        if let Some(v) = f.ttl { opts.ttl = v; }
-        if let Some(v) = &f.log_level { opts.log_level = v.clone(); }
-        if let Some(v) = f.style { opts.style = v; }
-        if let Some(v) = f.color { opts.color = v; }
+        if let Some(v) = &f.target {
+            opts.target = v.clone();
+        }
+        if let Some(v) = f.count {
+            opts.count = normalize_count(v);
+        }
+        if let Some(v) = f.interval {
+            opts.interval = v;
+        }
+        if let Some(v) = f.timeout {
+            opts.timeout = v;
+        }
+        if let Some(v) = f.payload_size {
+            opts.payload_size = v;
+        }
+        if let Some(v) = f.ttl {
+            opts.ttl = v;
+        }
+        if let Some(v) = &f.log_level {
+            opts.log_level = v.clone();
+        }
+        if let Some(v) = f.style {
+            opts.style = v;
+        }
+        if let Some(v) = f.color {
+            opts.color = v;
+        }
     }
 
-    if let Some(v) = &cli.target { opts.target = v.clone(); }
-    if let Some(v) = cli.count { opts.count = normalize_count(v); }
-    if cli.continuous { opts.count = None; }
-    if let Some(v) = cli.interval { opts.interval = v; }
-    if let Some(v) = cli.timeout { opts.timeout = v; }
-    if let Some(v) = cli.payload_size { opts.payload_size = v; }
-    if let Some(v) = cli.ttl { opts.ttl = v; }
-    if let Some(v) = &cli.log_level { opts.log_level = v.clone(); }
-    if let Some(v) = cli.style { opts.style = v; }
-    if let Some(v) = cli.color { opts.color = v; }
+    if let Some(v) = &cli.target {
+        opts.target = v.clone();
+    }
+    if let Some(v) = cli.count {
+        opts.count = normalize_count(v);
+    }
+    if cli.continuous {
+        opts.count = None;
+    }
+    if let Some(v) = cli.interval {
+        opts.interval = v;
+    }
+    if let Some(v) = cli.timeout {
+        opts.timeout = v;
+    }
+    if let Some(v) = cli.payload_size {
+        opts.payload_size = v;
+    }
+    if let Some(v) = cli.ttl {
+        opts.ttl = v;
+    }
+    if let Some(v) = &cli.log_level {
+        opts.log_level = v.clone();
+    }
+    if let Some(v) = cli.style {
+        opts.style = v;
+    }
+    if let Some(v) = cli.color {
+        opts.color = v;
+    }
     opts.verbose = cli.verbose;
 
     if opts.target.trim().is_empty() {

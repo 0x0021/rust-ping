@@ -139,11 +139,7 @@ impl Reporter for ColorReporter {
     }
 
     fn timeout(&self, seq: u32) {
-        println!(
-            "{} for icmp_seq {}",
-            "Request timeout".red().bold(),
-            seq
-        );
+        println!("{} for icmp_seq {}", "Request timeout".red().bold(), seq);
     }
 
     fn warning(&self, msg: &str) {
@@ -215,10 +211,7 @@ impl Reporter for TableReporter {
             "发送 / 接收".to_string(),
             format!("{} / {}", stats.sent, stats.received),
         ]);
-        table.add_row(vec![
-            "丢包率".to_string(),
-            format!("{:.1}%", stats.loss()),
-        ]);
+        table.add_row(vec!["丢包率".to_string(), format!("{:.1}%", stats.loss())]);
         table.add_row(vec![
             "最小 / 平均 / 最大 RTT (ms)".to_string(),
             match (stats.min(), stats.avg(), stats.max()) {

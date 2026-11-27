@@ -37,6 +37,8 @@ pub enum RecvOutcome {
 }
 
 /// 因特网校验和（RFC 1071）。
+// `as_chunks` 直到 Rust 1.88 才稳定，这里保持 1.70+ 兼容性。
+#[allow(clippy::chunks_exact_to_as_chunks)]
 fn checksum(data: &[u8]) -> u16 {
     let mut sum: u32 = 0;
     let mut chunks = data.chunks_exact(2);
@@ -87,12 +89,9 @@ fn permission_error(err: io::Error) -> anyhow::Error {
     #[cfg(windows)]
     let hint = "Windows 下发送 ICMP 需要管理员权限，请以管理员身份重新运行";
     #[cfg(not(windows))]
-    let hint = "需要 CAP_NET_RAW 权限：可执行 sudo setcap cap_net_raw+ep ./rust-ping，或使用 sudo 运行";
-    anyhow!(
-        "无法创建 ICMP socket: {}。{}",
-        err,
-        hint
-    )
+    let hint =
+        "需要 CAP_NET_RAW 权限：可执行 sudo setcap cap_net_raw+ep ./rust-ping，或使用 sudo 运行";
+    anyhow!("无法创建 ICMP socket: {}。{}", err, hint)
 }
 
 pub struct IcmpSocket {
@@ -123,7 +122,10 @@ impl IcmpSocket {
                 s
             }
             Err(dgram_err) => {
-                log::debug!("DGRAM 型 ICMP socket 不可用: {}，回退 RAW socket", dgram_err);
+                log::debug!(
+                    "DGRAM 型 ICMP socket 不可用: {}，回退 RAW socket",
+                    dgram_err
+                );
                 Socket::new(domain, Type::RAW, Some(proto))
                     .map_err(permission_error)
                     .with_context(|| "创建 ICMP socket 失败")?
@@ -227,7 +229,9 @@ impl IcmpSocket {
         self.socket.set_read_timeout(Some(timeout))?;
         let (n, ttl) = match recv_once(&self.socket, buf) {
             Ok(v) => v,
-            Err(e) if e.kind() == io::ErrorKind::WouldBlock || e.kind() == io::ErrorKind::TimedOut => {
+            Err(e)
+                if e.kind() == io::ErrorKind::WouldBlock || e.kind() == io::ErrorKind::TimedOut =>
+            {
                 return Ok(RecvOutcome::Timeout)
             }
             Err(e) => return Err(e).with_context(|| "接收 ICMP 回复失败"),
@@ -255,10 +259,7 @@ impl IcmpSocket {
         };
         if buf[offset] != expected_type {
             // 忽略自己回环的 Echo Request、ICMP 错误/重定向等非 Echo Reply 报文。
-            log::debug!(
-                "忽略非 Echo Reply 报文: type=0x{:02X}",
-                buf[offset]
-            );
+            log::debug!("忽略非 Echo Reply 报文: type=0x{:02X}", buf[offset]);
             return Ok(RecvOutcome::Ignored);
         }
         let identifier = u16::from_be_bytes([buf[offset + 4], buf[offset + 5]]);

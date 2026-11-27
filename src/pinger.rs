@@ -81,7 +81,10 @@ impl Pinger {
         log::debug!(
             "开始 ping: 目标={} 次数={} 间隔={:?} 超时={:?} 载荷={}",
             self.target,
-            self.opts.count.map(|n| n.to_string()).unwrap_or_else(|| "持续".into()),
+            self.opts
+                .count
+                .map(|n| n.to_string())
+                .unwrap_or_else(|| "持续".into()),
             interval,
             timeout,
             self.opts.payload_size
@@ -93,7 +96,8 @@ impl Pinger {
             match self.socket.send(seq as u16, &payload) {
                 Ok(()) => stats.record_sent(),
                 Err(e) => {
-                    self.reporter.warning(&format!("第 {} 包发送失败: {:#}", seq, e));
+                    self.reporter
+                        .warning(&format!("第 {} 包发送失败: {:#}", seq, e));
                     stats.record_error();
                     stats.record_sent();
                     seq += 1;
