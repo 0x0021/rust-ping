@@ -202,16 +202,27 @@ jobs:
           fi
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
-      - name: Create universal pkg
+      - name: Create universal binary
         shell: bash
         run: |
           lipo -create \
             target/x86_64-apple-darwin/release/rust-ping \
             target/aarch64-apple-darwin/release/rust-ping \
             -output rust-ping-universal
+
+      - name: Create universal pkg
+        shell: bash
+        run: |
           PKG="rust-ping-${VERSION}-universal-apple-darwin.pkg"
           packaging/macos/build-pkg.sh "$VERSION" rust-ping-universal "$PKG"
           shasum -a 256 "$PKG" > "$PKG.sha256"
+
+      - name: Create app bundle for app stores (with Bundle ID)
+        shell: bash
+        run: |
+          APP_ZIP="rust-ping-${VERSION}-universal-apple-darwin.app.zip"
+          packaging/macos/build-app.sh "$VERSION" rust-ping-universal rust-ping.app "$APP_ZIP"
+          shasum -a 256 "$APP_ZIP" > "$APP_ZIP.sha256"
 
       - name: Upload macOS package
         uses: actions/upload-artifact@v4
@@ -220,6 +231,8 @@ jobs:
           path: |
             *.pkg
             *.pkg.sha256
+            *.app.zip
+            *.app.zip.sha256
           if-no-files-found: error
 
   package-windows:

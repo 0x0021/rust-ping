@@ -1,6 +1,6 @@
 [package]
 name = "rust-ping"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 description = "A cross-platform command-line ping tool written in Rust"
 license = "MIT"

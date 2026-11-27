@@ -49,28 +49,28 @@ GitHub Releases 提供以下产物（均含 SHA256 校验文件）：
 
 ```bash
 # 压缩包，解压即用
-tar -xzf rust-ping-v0.1.3-x86_64-unknown-linux-gnu.tar.gz
-cd rust-ping-v0.1.3-x86_64-unknown-linux-gnu
+tar -xzf rust-ping-v0.1.4-x86_64-unknown-linux-gnu.tar.gz
+cd rust-ping-v0.1.4-x86_64-unknown-linux-gnu
 ./rust-ping 1.1.1.1
 
 # 校验
-sha256sum -c rust-ping-v0.1.3-x86_64-unknown-linux-gnu.tar.gz.sha256
+sha256sum -c rust-ping-v0.1.4-x86_64-unknown-linux-gnu.tar.gz.sha256
 ```
 
 原生安装包安装方式：
 
 ```bash
 # Debian / Ubuntu
-sudo apt install ./rust-ping-v0.1.3-amd64.deb
+sudo apt install ./rust-ping-v0.1.4-amd64.deb
 
 # RHEL / Fedora / CentOS
-sudo rpm -ivh rust-ping-v0.1.3-x86_64.rpm
+sudo rpm -ivh rust-ping-v0.1.4-x86_64.rpm
 
 # macOS（universal pkg，安装到 /usr/local/bin）
-sudo installer -pkg rust-ping-v0.1.3-universal-apple-darwin.pkg -target /
+sudo installer -pkg rust-ping-v0.1.4-universal-apple-darwin.pkg -target /
 
 # Windows：双击 MSI，或命令行静默安装
-msiexec /i rust-ping-v0.1.3-x86_64-pc-windows-msvc.msi /qn
+msiexec /i rust-ping-v0.1.4-x86_64-pc-windows-msvc.msi /qn
 ```
 
 ### 自动发布
@@ -78,11 +78,48 @@ msiexec /i rust-ping-v0.1.3-x86_64-pc-windows-msvc.msi /qn
 维护者推送 `v*` tag 即自动触发多平台交叉编译、原生安装包构建并创建 GitHub Release：
 
 ```bash
-git tag v0.1.3
-git push origin v0.1.3
+git tag v0.1.4
+git push origin v0.1.4
 ```
 
 也可以在 Actions 页面手动触发 Release 工作流并指定版本号。CI 工作流在每次 push / PR 到 `master` 时运行格式检查、clippy、测试和构建。
+
+### 上架 macOS 应用商店（Bundle ID）
+
+裸二进制和 `.pkg` 不含 Bundle ID，商店会报 "missing Bundle ID"。请下载 Release 中的 `rust-ping-v0.1.4-universal-apple-darwin.app.zip`——里面是一个标准 `.app` bundle，`Contents/Info.plist` 已包含：
+
+| 键 | 值 |
+| --- | --- |
+| `CFBundleIdentifier`（Bundle ID） | `com.0x0021.rust-ping` |
+| `CFBundleName` / `CFBundleDisplayName` | `rust-ping` |
+| `CFBundleExecutable` | `rust-ping` |
+| `CFBundleIconFile` | `icon.icns` |
+| `CFBundleShortVersionString` / `CFBundleVersion` | 版本号（如 `0.1.4`） |
+| `NSUpdateSecurityPolicy` | 已授权 Setapp Agent 更新（macOS 13+） |
+
+校验方式：
+
+```bash
+plutil -extract CFBundleIdentifier raw -o - rust-ping.app/Contents/Info.plist
+# 输出: com.0x0021.rust-ping
+```
+
+zip 顶层结构为 `rust-ping.app/` + `AppIcon.png`（无 `__MACOSX`），符合 Setapp 等商店的上传要求。上架步骤：
+
+1. 在 Apple Developer 后台用同样的 Bundle ID 注册 App ID（首次上架后不可更改）。
+2. 在商店后台创建 App 记录并填入相同的 Bundle ID。
+3. 用你的 Distribution 证书重新签名（CI 产物默认未签名），再上传并公证。注意：Bundle ID 必须与签名描述文件中的 App ID 一致，否则会报 "profile does not match bundle ID"。
+
+本地重新生成（需 macOS）：
+
+```bash
+# 生成未签名产物
+packaging/macos/build-app.sh v0.1.4 target/release/rust-ping rust-ping.app rust-ping.app.zip
+
+# 用正式证书签名后重新打包
+SIGN_IDENTITY="Developer ID Application: YOUR TEAM (TEAMID)" \
+  packaging/macos/build-app.sh v0.1.4 target/release/rust-ping rust-ping.app rust-ping.app.zip
+```
 
 ## 用法
 
