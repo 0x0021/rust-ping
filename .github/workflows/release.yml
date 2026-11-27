@@ -255,8 +255,6 @@ jobs:
         shell: pwsh
         run: |
           $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-          Copy-Item "target/release/rust-ping.exe" "packaging/windows/rust-ping.exe"
-          Copy-Item README.md, config.example.toml "packaging/windows/"
           $numeric = $env:VERSION.TrimStart('v')
           $msi = "rust-ping-$env:VERSION-x86_64-pc-windows-msvc.msi"
           wix build -arch x64 -d "Version=$numeric" "packaging/windows/rust-ping.wxs" -out "$msi"

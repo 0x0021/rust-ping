@@ -14,7 +14,7 @@
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="rust-ping">
         <Component Id="MainExecutable" Guid="*">
-          <File Id="rustPingExe" Source="rust-ping.exe" KeyPath="yes" />
+          <File Id="rustPingExe" Source="target/release/rust-ping.exe" KeyPath="yes" />
         </Component>
         <Component Id="Readme" Guid="*">
           <File Id="ReadmeFile" Source="README.md" KeyPath="yes" />
