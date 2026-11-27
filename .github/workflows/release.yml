@@ -116,8 +116,10 @@ jobs:
       matrix:
         include:
           - arch: amd64
+            rpm_arch: x86_64
             runner: ubuntu-22.04
           - arch: arm64
+            rpm_arch: aarch64
             runner: ubuntu-24.04-arm
     steps:
       - uses: actions/checkout@v4
@@ -152,7 +154,7 @@ jobs:
         shell: bash
         run: |
           DEB="rust-ping-${VERSION}-${{ matrix.arch }}.deb"
-          RPM="rust-ping-${VERSION}-${{ matrix.arch }}.rpm"
+          RPM="rust-ping-${VERSION}-${{ matrix.rpm_arch }}.rpm"
           cargo deb --no-build --output "$DEB"
           cargo generate-rpm --output "$RPM"
           sha256sum "$DEB" > "$DEB.sha256"
