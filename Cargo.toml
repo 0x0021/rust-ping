@@ -1,6 +1,6 @@
 [package]
 name = "rust-ping"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "A cross-platform command-line ping tool written in Rust"
 license = "MIT"
@@ -22,6 +22,7 @@ assets = [
   ["target/release/rust-ping", "usr/bin/", "755"],
   ["README.md", "usr/share/doc/rust-ping/README.md", "644"],
   ["config.example.toml", "usr/share/doc/rust-ping/config.example.toml", "644"],
+  ["assets/icon.png", "usr/share/doc/rust-ping/icon.png", "644"],
 ]
 
 [package.metadata.generate-rpm]
@@ -32,6 +33,7 @@ assets = [
   { source = "target/release/rust-ping", dest = "/usr/bin/rust-ping", mode = "755" },
   { source = "README.md", dest = "/usr/share/doc/rust-ping/README.md", mode = "644" },
   { source = "config.example.toml", dest = "/usr/share/doc/rust-ping/config.example.toml", mode = "644" },
+  { source = "assets/icon.png", dest = "/usr/share/doc/rust-ping/icon.png", mode = "644" },
 ]
 
 [dependencies]

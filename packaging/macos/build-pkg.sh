@@ -14,7 +14,7 @@ export COPYFILE_DISABLE=1
 
 mkdir -p "$STAGE/usr/local/bin" "$STAGE/usr/local/share/doc/rust-ping"
 cp "$BIN" "$STAGE/usr/local/bin/rust-ping"
-cp README.md config.example.toml "$STAGE/usr/local/share/doc/rust-ping/"
+cp README.md config.example.toml assets/icon.png "$STAGE/usr/local/share/doc/rust-ping/"
 find "$STAGE" -name '._*' -delete
 
 pkgbuild \

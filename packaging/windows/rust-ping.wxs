@@ -11,6 +11,9 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
+    <Icon Id="ProductIcon" SourceFile="assets/icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="rust-ping">
         <Component Id="MainExecutable" Guid="*">
@@ -22,6 +25,9 @@
         <Component Id="ExampleConfig" Guid="*">
           <File Id="ExampleConfigFile" Source="config.example.toml" KeyPath="yes" />
         </Component>
+        <Component Id="AppIcon" Guid="*">
+          <File Id="AppIconFile" Source="assets/icon.png" KeyPath="yes" />
+        </Component>
       </Directory>
     </StandardDirectory>
 
@@ -29,6 +35,7 @@
       <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="Readme" />
       <ComponentRef Id="ExampleConfig" />
+      <ComponentRef Id="AppIcon" />
     </Feature>
   </Package>
 </Wix>

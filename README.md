@@ -1,5 +1,7 @@
 # rust-ping
 
+<img src="assets/icon.png" alt="rust-ping icon" width="128" align="right" />
+
 [![CI](https://github.com/0x0021/rust-ping/actions/workflows/ci.yml/badge.svg)](https://github.com/0x0021/rust-ping/actions/workflows/ci.yml)
 [![Release](https://github.com/0x0021/rust-ping/actions/workflows/release.yml/badge.svg)](https://github.com/0x0021/rust-ping/actions/workflows/release.yml)
 
@@ -47,28 +49,28 @@ GitHub Releases 提供以下产物（均含 SHA256 校验文件）：
 
 ```bash
 # 压缩包，解压即用
-tar -xzf rust-ping-v0.1.2-x86_64-unknown-linux-gnu.tar.gz
-cd rust-ping-v0.1.2-x86_64-unknown-linux-gnu
+tar -xzf rust-ping-v0.1.3-x86_64-unknown-linux-gnu.tar.gz
+cd rust-ping-v0.1.3-x86_64-unknown-linux-gnu
 ./rust-ping 1.1.1.1
 
 # 校验
-sha256sum -c rust-ping-v0.1.2-x86_64-unknown-linux-gnu.tar.gz.sha256
+sha256sum -c rust-ping-v0.1.3-x86_64-unknown-linux-gnu.tar.gz.sha256
 ```
 
 原生安装包安装方式：
 
 ```bash
 # Debian / Ubuntu
-sudo apt install ./rust-ping-v0.1.2-amd64.deb
+sudo apt install ./rust-ping-v0.1.3-amd64.deb
 
 # RHEL / Fedora / CentOS
-sudo rpm -ivh rust-ping-v0.1.2-x86_64.rpm
+sudo rpm -ivh rust-ping-v0.1.3-x86_64.rpm
 
 # macOS（universal pkg，安装到 /usr/local/bin）
-sudo installer -pkg rust-ping-v0.1.2-universal-apple-darwin.pkg -target /
+sudo installer -pkg rust-ping-v0.1.3-universal-apple-darwin.pkg -target /
 
 # Windows：双击 MSI，或命令行静默安装
-msiexec /i rust-ping-v0.1.2-x86_64-pc-windows-msvc.msi /qn
+msiexec /i rust-ping-v0.1.3-x86_64-pc-windows-msvc.msi /qn
 ```
 
 ### 自动发布
@@ -76,8 +78,8 @@ msiexec /i rust-ping-v0.1.2-x86_64-pc-windows-msvc.msi /qn
 维护者推送 `v*` tag 即自动触发多平台交叉编译、原生安装包构建并创建 GitHub Release：
 
 ```bash
-git tag v0.1.2
-git push origin v0.1.2
+git tag v0.1.3
+git push origin v0.1.3
 ```
 
 也可以在 Actions 页面手动触发 Release 工作流并指定版本号。CI 工作流在每次 push / PR 到 `master` 时运行格式检查、clippy、测试和构建。
