@@ -16,6 +16,7 @@
 - 命令行参数 + TOML 配置文件双重配置，命令行优先级更高
 - 三种输出样式：普通文本、颜色高亮、表格；独立的颜色开关
 - 统一错误类型、详细日志、网络不可达等常见故障的友好提示
+- 提供 macOS `.app` bundle（含 Bundle ID），可上架 Setapp 等应用商店
 
 ## 构建与安装
 
@@ -42,7 +43,7 @@ GitHub Releases 提供以下产物（均含 SHA256 校验文件）：
 | --- | --- | --- |
 | Linux x86_64 | `x86_64-unknown-linux-gnu` | `.deb`（amd64）、`.rpm`（x86_64） |
 | Linux aarch64 | `aarch64-unknown-linux-gnu` | `.deb`（arm64）、`.rpm`（aarch64） |
-| macOS Intel / Apple Silicon | 两个架构各一个 tar.gz | `.pkg`（universal，含两种架构） |
+| macOS Intel / Apple Silicon | 两个架构各一个 tar.gz | `.pkg`（universal，含两种架构）；`.app.zip`（universal，带 Bundle ID，供商店上传） |
 | Windows x86_64 | `x86_64-pc-windows-msvc` | `.msi` |
 
 到 [Releases](https://github.com/0x0021/rust-ping/releases) 页面下载对应文件：
@@ -205,9 +206,19 @@ color = "auto"       # auto / always / never
 
 ```
 rust-ping/
-├── Cargo.toml              # 依赖与构建配置
+├── Cargo.toml              # 依赖与构建配置、deb/rpm 元数据
 ├── config.example.toml     # 示例配置文件
 ├── README.md
+├── assets/                 # 项目图标（PNG / ICO / ICNS）
+├── packaging/              # 各平台打包脚本
+│   ├── macos/
+│   │   ├── build-pkg.sh    # 生成 universal .pkg
+│   │   └── build-app.sh    # 生成带 Bundle ID 的 .app（供商店上传）
+│   └── windows/
+│       └── rust-ping.wxs   # WiX v5 MSI 定义
+├── .github/workflows/
+│   ├── ci.yml              # fmt / clippy / test / build
+│   └── release.yml         # 多平台交叉编译、安装包与 Release 发布
 └── src/
     ├── main.rs             # 入口：参数解析、配置加载、日志、Ctrl+C
     ├── cli.rs              # 命令行参数定义
