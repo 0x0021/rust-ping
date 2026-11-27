@@ -97,7 +97,7 @@ impl Pinger {
                 Ok(()) => stats.record_sent(),
                 Err(e) => {
                     self.reporter
-                        .warning(&format!("第 {} 包发送失败: {:#}", seq, e));
+                        .error(seq, &format!("第 {} 包发送失败: {:#}", seq, e));
                     stats.record_error();
                     stats.record_sent();
                     seq += 1;
@@ -144,7 +144,7 @@ impl Pinger {
                     Ok(crate::icmp::RecvOutcome::Ignored) => continue, // 非回复包，继续等
                     Ok(crate::icmp::RecvOutcome::Timeout) => break,    // 超时
                     Err(e) => {
-                        self.reporter.warning(&format!("接收回复失败: {:#}", e));
+                        self.reporter.error(seq, &format!("接收回复失败: {:#}", e));
                         stats.record_error();
                         break;
                     }

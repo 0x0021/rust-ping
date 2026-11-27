@@ -82,6 +82,7 @@ rust-ping 8.8.8.8 --continuous
 # 颜色高亮 / 表格输出
 rust-ping 127.0.0.1 -c 3 --style color --color always
 rust-ping 127.0.0.1 -c 3 --style table
+# 表格样式会在 ping 结束后一次性输出完整明细表 + 汇总表（运行过程中静默）
 
 # 使用配置文件（命令行参数可覆盖其中字段）
 rust-ping --config ./config.example.toml
