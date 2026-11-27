@@ -1,0 +1,31 @@
+[package]
+name = "rust-ping"
+version = "0.1.0"
+edition = "2021"
+description = "A cross-platform command-line ping tool written in Rust"
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+# 命令行参数解析
+clap = { version = "4", features = ["derive"] }
+# 配置文件
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+# 跨平台 socket
+socket2 = { version = "0.5", features = ["all"] }
+libc = "0.2"
+# 输出样式
+colored = "2"
+comfy-table = "7"
+# 错误处理与日志
+anyhow = "1"
+log = "0.4"
+env_logger = "0.11"
+# Ctrl+C 优雅退出
+ctrlc = "3"
+
+[profile.release]
+opt-level = 2
+strip = true
+lto = true

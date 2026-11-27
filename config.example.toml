@@ -1,0 +1,31 @@
+# rust-ping 示例配置文件
+# 用法：rust-ping --config ./config.example.toml
+# 优先级：命令行参数 > 配置文件 > 内置默认值
+# 不指定 --config 时，程序会依次查找 ./rust-ping.toml 和 ~/.config/rust-ping/config.toml
+
+# 目标域名或 IP 地址（命令行传入 TARGET 时以命令行优先）
+target = "example.com"
+
+# 发送请求数量；0 表示持续运行
+count = 4
+
+# 发送间隔（秒）
+interval = 1.0
+
+# 单次等待回复的超时（秒）
+timeout = 1.0
+
+# ICMP 载荷字节数
+payload_size = 56
+
+# TTL（IPv4）/ Hop Limit（IPv6）
+ttl = 64
+
+# 日志级别：error / warn / info / debug / trace
+log_level = "warn"
+
+# 输出样式：plain（普通文本） / color（颜色高亮） / table（表格）
+style = "plain"
+
+# 颜色开关：auto（自动） / always（始终开启） / never（始终关闭）
+color = "auto"
